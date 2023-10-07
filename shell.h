@@ -19,7 +19,6 @@
 #include <pwd.h>
 #include <grp.h>
 
-
 #define MAX_INPUT_SIZE 1024
 #define MAX_ARGS 100
 #define PATH_MAX 4096
@@ -34,11 +33,9 @@ int change_directory(const char *path);
 void echo(char* message[], int arg_count);
 void sigint_handler();
 int ping(char *command);
-void run_pipeline(char **commands);
 void list_files_detailed(const char *path);
 int append_output_to_file(const char *command, const char *filename);
 void execute_command(char* args[], int arg_count);
-void pipe_commands(const char *cmd1, const char *cmd2);
 void run_shell();
 
 #endif 
