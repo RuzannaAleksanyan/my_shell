@@ -1,7 +1,8 @@
 #include "shell.h"
 
 void clear_terminal() {
-    printf("\033[H\033[J");
+    // printf("\033[H\033[J");
+    system("clear");
 }
 
 void help() {
@@ -30,14 +31,14 @@ void function(const char* command) {
 
     if (status == -1) {
         perror("Error executing ifconfig");
-        return;
+        return; // Failure
     }
 }
 
 void get_current_directory(char *buf, size_t size) {
     if (getcwd(buf, size) == NULL) {
         perror("getcwd");
-        exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE); // Failure
     }
 }
 
@@ -108,7 +109,7 @@ int ping(char *command) {
 
     if (pid < 0) {
         perror("Fork failed");
-        return -1;
+        return -1;  // Failure
     } else if (pid == 0) {
         // In the child process
         char *args[] = { "/bin/sh", "-c", command, NULL };
@@ -117,7 +118,7 @@ int ping(char *command) {
         exit(1);
     } else {
         // In the parent process, wait for the child to complete
-        int status;
+        int status = 0;
         waitpid(pid, &status, 0);
 
         if (ctrlC_pressed) {
@@ -128,57 +129,6 @@ int ping(char *command) {
             return WEXITSTATUS(status);
         }
     }
-}
-
-void run_pipeline(char **commands) {
-    int num_commands = 0;
-    while (commands[num_commands] != NULL) {
-        num_commands++;
-    }
-
-    int pipe_fds[2];
-    int prev_pipe = -1;
-
-    for (int i = 0; i < num_commands; i++) {
-        if (pipe(pipe_fds) == -1) {
-            perror("pipe");
-            exit(EXIT_FAILURE);
-        }
-
-        pid_t child_pid = fork();
-
-        if (child_pid == -1) {
-            perror("fork");
-            exit(EXIT_FAILURE);
-        }
-
-        if (child_pid == 0) {
-            // Child process
-            close(pipe_fds[0]); // Close the read end of the pipe
-
-            if (i > 0) {
-                dup2(prev_pipe, STDIN_FILENO); // Redirect input from the previous pipe
-            }
-
-            if (i < num_commands - 1) {
-                dup2(pipe_fds[1], STDOUT_FILENO); // Redirect output to the next pipe
-            }
-
-            close(pipe_fds[1]); // Close the write end of the pipe
-
-            execvp(commands[i], &commands[i]);
-            perror("execvp");
-            exit(EXIT_FAILURE);
-        } else {
-            // Parent process
-            close(prev_pipe); // Close the previous pipe (if any)
-            close(pipe_fds[1]); // Close the write end of the pipe
-            prev_pipe = pipe_fds[0]; // Save the read end of the current pipe for the next iteration
-        }
-    }
-
-    // Wait for all child processes to finish
-    while (wait(NULL) > 0) {}
 }
 
 void list_files_detailed(const char *path) {
@@ -334,64 +284,6 @@ void execute_command(char* args[], int arg_count) {
     }
 }
 
-void pipe_commands(const char *cmd1, const char *cmd2) {
-    int pipe_fd[2]; // File descriptors for the pipe
-
-    // Create a pipe
-    if (pipe(pipe_fd) == -1) {
-        perror("pipe");
-        exit(EXIT_FAILURE);
-    }
-
-    // Fork the first child process to execute cmd1
-    pid_t child1_pid = fork();
-
-    if (child1_pid == -1) {
-        perror("fork");
-        exit(EXIT_FAILURE);
-    }
-
-    if (child1_pid == 0) {
-        // In the first child process
-        close(pipe_fd[0]); // Close the read end of the pipe
-        dup2(pipe_fd[1], STDOUT_FILENO); // Redirect stdout to the write end of the pipe
-        close(pipe_fd[1]); // Close the write end of the pipe
-
-        // Execute cmd1
-        execl("/bin/sh", "sh", "-c", cmd1, NULL);
-        perror("execl");
-        exit(EXIT_FAILURE);
-    }
-
-    // Fork the second child process to execute cmd2
-    pid_t child2_pid = fork();
-
-    if (child2_pid == -1) {
-        perror("fork");
-        exit(EXIT_FAILURE);
-    }
-
-    if (child2_pid == 0) {
-        // In the second child process
-        close(pipe_fd[1]); // Close the write end of the pipe
-        dup2(pipe_fd[0], STDIN_FILENO); // Redirect stdin to the read end of the pipe
-        close(pipe_fd[0]); // Close the read end of the pipe
-
-        // Execute cmd2
-        execl("/bin/sh", "sh", "-c", cmd2, NULL);
-        perror("execl");
-        exit(EXIT_FAILURE);
-    }
-
-    // In the parent process
-    close(pipe_fd[0]); // Close both ends of the pipe
-    close(pipe_fd[1]);
-
-    // Wait for both child processes to complete
-    waitpid(child1_pid, NULL, 0);
-    waitpid(child2_pid, NULL, 0);
-}
-
 void run_shell() {
     char input[MAX_INPUT_SIZE];
     char *args[MAX_ARGS];
@@ -403,7 +295,7 @@ void run_shell() {
     while (1) {
         get_current_directory(current_directory, sizeof(current_directory));  // Get the current directory
         printf("Shell/%s ", current_directory);  // Include it in the prompt
-        fflush(stdout);
+        fflush(stdout); // Flushes the standard output stream.
 
         if (fgets(input, sizeof(input), stdin) == NULL) {
             perror("fgets");
