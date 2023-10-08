@@ -28,7 +28,9 @@ The Simple Shell accepts various commands and arguments with the following struc
 - `ls`: List files and directories in the current directory.
 - `ls -la`: List files and directories in long format (-l) and include hidden files (-a).
 - `mkdir`: Create a new directory.
-- `rm`: Remove files and directories.
+- `touch`: Create a new file.
+- `rmdir`: Remove directory.
+- `rm`: Remove file.
 - `cd`: Change the current directory.
 - `help`: Request help (specific command).
 - `exit`: Exit the current shell session.
