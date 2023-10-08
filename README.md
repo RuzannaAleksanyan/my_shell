@@ -2,7 +2,7 @@
 
 ## General Overview
 
-Simple Shell is a basic command-line shell program implemented in the C programming language. It provides a simple interface for running commands and managing files and information, making user work more accessible in the modern computer world.
+A shell is a basic command-line shell program implemented in the C programming language. It provides a simple interface for running commands and managing files and information. In the modern computer world, using a simple shell is preferable to make user work more accessible.
 
 ## Table of Contents
 
@@ -18,9 +18,9 @@ Simple Shell is a basic command-line shell program implemented in the C programm
 ## Commands' Structure
 
 The Simple Shell accepts various commands and arguments with the following structure:
+            command [argument]
 
-
-- `command`: The action to be performed (e.g., ls, cd, help, etc.).
+- `command`: The action to be performed (ls, cd, help, etc.).
 - `[arguments]`: Optional arguments for the command.
 
 ## Commands
@@ -30,7 +30,7 @@ The Simple Shell accepts various commands and arguments with the following struc
 - `mkdir`: Create a new directory.
 - `rm`: Remove files and directories.
 - `cd`: Change the current directory.
-- `help`: Request help (specific command or topic not specified).
+- `help`: Request help (specific command).
 - `exit`: Exit the current shell session.
 - `clear`: Clear the terminal screen.
 - `ping`: Test network connectivity to a host.
@@ -42,9 +42,8 @@ The Simple Shell accepts various commands and arguments with the following struc
 - `fg`: Bring a background job to the foreground.
 - `bg`: Resume a stopped background job.
 - `top`: Display dynamic information about system processes.
-- `|`: Pipe the output of one command into another.
+- `|`: Gives the first command's output to the second one and does the second command.
 - `>>`: Append the output of a command to a file.
-- `<<`: Use for input redirection.
 
 ## Algorithms
 
@@ -58,19 +57,19 @@ The Simple Shell accepts various commands and arguments with the following struc
 
 - The shell supports background commands using the syntax `command &`.
 - It manages background processes and their Process IDs (PIDs) and associated commands.
-- The `bg` command controls background jobs that have been stopped.
+- The `bg` command restarts background jobs that have been stopped.
 - The `fg` command brings a job to the foreground.
 - The shell manages job lists and control signals.
 
 ### File and Directory Operations
 
-- The shell provides commands for file and directory operations such as `ls`, `mkdir`, `rm`, etc.
+- The shell provides commands for file and directory operations such as `ls`, `mkdir` and `rm`.
 - The `ls -la` command displays detailed information about files and directories.
 
 ### Handling Signals
 
-- The shell handles signals like SIGINT (CTRL + C) to interrupt processes.
-- SIGINT allows users to stop a command's operation with CTRL + C and exit the shell with a double CTRL + C.
+- The shell handles signals like SIGINT (Ctrl+C) to interrupt processes.
+- SIGINT allows users to stop a command's operation with Ctrl+C and exit the shell with a double Ctrl+C.
 - Managing signals improves control over processes.
 
 ## Usage
@@ -90,11 +89,7 @@ The Simple Shell accepts various commands and arguments with the following struc
      ```
      ./myshell
      ```
-
-3. **Features:**
-
-   - MyShell includes features like command execution, changing the current directory, file and directory management, network utilities, process management, background execution, job control, and more.
-
-4. **Customization:**
+     
+3. **Customization:**
 
    - You can customize MyShell by modifying the source code in `test.c`. Add new commands or functionality to suit your specific needs. You can also customize compiler flags and options in the Makefile.
