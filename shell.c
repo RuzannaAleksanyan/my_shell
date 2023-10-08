@@ -13,8 +13,10 @@ void help() {
     printf("  top - Provides real-time information about system processes, resource usage, and system performance.\n");
     printf("  ls - Used to list the files and directories in the current directory. \n");
     printf("  ls -la - Provides a detailed listing of files and directories, including additional information such as file permissions, owner, group, file size, and modification date.\n");
-    printf("  mkdir - Allows you to create directories (folders) in your file system from the command line.\n");
-    printf("  rm - Allows you to remove files from your file system using the command line.\n");
+    printf("  mkdir - Allows you to create directorie(folder) in your file system from the command line.\n");
+    printf("  touch - Allows you to create file in your file system from the command line.\n");
+    printf("  rm - Deletes the file.\n");
+    printf("  rmdir - Deletes the directory.\n");
     printf("  ping - Network utility used to test the reachability of a network host by sending ICMP (Internet Control Message Protocol).\n");
     printf("  ifconfig - Allows you to configure and display information about your system's network interfaces.\n");
     printf("  ps - Display information about running processes.\n");
@@ -54,12 +56,34 @@ int create_directory(const char *path) {
     }
 }
 
-int remove_file(const char *filename) {
-    if (remove(filename) == 0) {
-        printf("File '%s' has been removed.\n", filename);
+int touch(const char* dir_name) {
+    FILE* file = fopen(dir_name, "a"); // Open the file in "append" mode
+
+    if (file == NULL) {
+        perror("Error creating or updating file");
+        return 1; // Failure
+    }
+
+    fclose(file);
+    return 0; // Success
+}
+
+int remove_file(const char *file_name) {
+    if (unlink(file_name) == 0) {
+        printf("File '%s' has been removed.\n", file_name);
         return 0;  // Success
     } else {
         perror("Error removing file");
+        return 1;  // Failure
+    }
+}
+
+int remove_directory(const char* dir_name) {
+    if (rmdir(dir_name) == 0) {
+        printf("Directory '%s' has been removed.\n", dir_name);
+        return 0;  // Success
+    } else {
+        perror("Error removing directory");
         return 1;  // Failure
     }
 }
@@ -74,10 +98,28 @@ int change_directory(const char *path) {
     }
 }
 
+void remove_chars(char* str, char char_to_remove) {
+    int read_index = 0;
+    int write_index = 0;
+
+    while (str[read_index]) {
+        if (str[read_index] != char_to_remove) {
+            str[write_index] = str[read_index];
+            write_index++;
+        }
+        read_index++;
+    }
+
+    str[write_index] = '\0'; // Null-terminate the new string
+}
+
 void echo(char* message[], int arg_count) {
-    for(int i = 1; i < arg_count; ++i) {
+    for (int i = 1; i < arg_count; ++i) {
+        remove_chars(message[i], '"'); // Remove double quotes
+        remove_chars(message[i], '\''); // Remove exclamation marks
+        
         printf("%s", message[i]);
-        if(i < arg_count - 1) {
+        if (i < arg_count - 1) {
             printf(" ");
         }
     }
@@ -241,12 +283,28 @@ void execute_command(char* args[], int arg_count) {
             if (strcmp(directory_name, "") == 0) {
                 printf("Invalid input: Empty directory name.\n");
             } else {
+
                 create_directory(directory_name);
             }
         }
+    } else if(arg_count > 0 && strcmp(args[0], "touch") == 0) {
+        if (arg_count < 2) {
+            printf("Usage: mkdir <directory_name>\n");
+        } else {
+            char* directory_name = args[1];
+            if (strcmp(directory_name, "") == 0) {
+                printf("Invalid input: Empty directory name.\n");
+            } else {
+
+                touch(directory_name);
+            }
+        }
     } else if(arg_count > 0 && strcmp(args[0], "rm") == 0) {
-        const char *filename = args[1];
-        remove_file(filename);
+        const char *file_name = args[1];
+        remove_file(file_name);
+    } else if(arg_count > 0 && strcmp(args[0], "rmdir") == 0) {
+        const char *dir_name = args[1];
+        remove_directory(dir_name);
     } else if(arg_count > 0 && strcmp(args[0], "cd") == 0) {
         change_directory(args[1]);
     } else if (arg_count > 0 && strcmp(args[0], "ping") == 0) { // ctrl c
@@ -339,3 +397,7 @@ void run_shell() {
         }
     }
 }
+
+
+
+
