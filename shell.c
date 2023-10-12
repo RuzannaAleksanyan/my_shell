@@ -23,6 +23,7 @@ void help() {
     printf("  command & - Job control.\n");
     printf("  fg - The fg command in a terminal is used to bring a background job back to the foreground.\n");
     printf("  bg - The bg command in a terminal is used to manage background jobs.\n");
+    printf("  jobs - Jobs command is used to display a list of background jobs associated with the current shell session.\n");
     printf("  echo - Display messages or values to the standard output. \n");
     printf("  pwd - Display the current working directory of the user within the file system hierarchy.\n");
     printf("  exit - Exit the shell.\n");
@@ -337,6 +338,8 @@ void execute_command(char* args[], int arg_count) {
         function(args[0]);
     } else if(arg_count > 0 && strcmp(args[0], "echo") == 0) {
         echo(args, arg_count);
+    } else if(arg_count > 0 && strcmp(args[0], "jobs") == 0) {
+        jobss();
     } else {
         printf("gd: command not found\n");
     }
@@ -397,7 +400,3 @@ void run_shell() {
         }
     }
 }
-
-
-
-
