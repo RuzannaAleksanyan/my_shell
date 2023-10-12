@@ -15,13 +15,6 @@ void add_job(pid_t pid, const char *command) {
     }
 }
 
-// Function to list currently running jobs
-void list_jobs() {
-    for (int i = 0; i < num_jobs; i++) {
-        printf("[%d] %s (PID %d)\n", i + 1, jobs[i].command, jobs[i].pid);
-    }
-}
-
 // command &
 void run_command_in_background(const char* command) {
     // Fork a child process
@@ -78,7 +71,7 @@ void bring_to_foreground(pid_t pid) {
         }
     }
     printf("Job with PID %d not found.\n", pid);
-}
+}   
 
 // Resume a background job by sending SIGCONT signal
 void resume_background_job(pid_t pid) {
@@ -104,5 +97,24 @@ void resume_background_job(pid_t pid) {
     printf("Job with PID %d not found.\n", pid);
 }
 
+void jobss() {
+    for (int i = 0; i < num_jobs; i++) {
+        int status;
+        pid_t pid = jobs[i].pid;
 
-
+        if (waitpid(pid, &status, WNOHANG) == 0) {
+            // The job is still running
+            printf("[%d]+   Running       %s (PID %d)\n", i + 1, jobs[i].command, pid);
+        } else if (WIFEXITED(status)) {
+            // The job has exited
+            printf("[%d]+   Done          %s (PID %d)\n", i + 1, jobs[i].command, pid);
+            // Remove the job from the list
+            remove_job(i);
+        } else if (WIFSIGNALED(status)) {
+            // The job was terminated by a signal
+            printf("[%d]+   Terminated    %s (PID %d)\n", i + 1, jobs[i].command, pid);
+            // Remove the job from the list
+            remove_job(i);
+        }
+    }
+}
