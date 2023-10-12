@@ -19,10 +19,11 @@ typedef struct {
 } Job;
 
 void add_job(pid_t pid, const char *command);
-void list_jobs();
 void run_command_in_background(const char* command);
 void remove_job(int index);
 void bring_to_foreground(pid_t pid);
 void resume_background_job(pid_t pid);
+void jobss();
+
 
 #endif
