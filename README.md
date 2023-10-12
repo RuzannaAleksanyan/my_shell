@@ -43,6 +43,7 @@ The Simple Shell accepts various commands and arguments with the following struc
 - `command &`: Run a command in the background.
 - `fg`: Bring a background job to the foreground.
 - `bg`: Resume a stopped background job.
+- `jobs`: Print the jobs.
 - `top`: Display dynamic information about system processes.
 - `|`: Gives the first command's output to the second one and does the second command.
 - `>>`: Append the output of a command to a file.
