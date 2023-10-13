@@ -133,39 +133,32 @@ volatile int ctrlC_pressed = 0;
 // Signal handler for SIGINT (Ctrl+C)
 void sigint_handler() {
     if (ctrlC_pressed == 1) {
-        // The program has already received Ctrl+C once, exit the program
         printf("Ctrl+C pressed. Exiting the shell...\n");
         exit(0);
     } else {
-        // The program has not yet received Ctrl+C, stop the ping function
         printf("Ctrl+C pressed. Stopping the ping command...\n");
         ctrlC_pressed = 1;
     }
 }
 
 int ping(char *command) {
-    // Set up the signal handler for SIGINT
     signal(SIGINT, sigint_handler);
 
-    // Create a child process to execute the command
     pid_t pid = fork();
 
     if (pid < 0) {
         perror("Fork failed");
         return -1;  // Failure
     } else if (pid == 0) {
-        // In the child process
         char *args[] = { "/bin/sh", "-c", command, NULL };
         execvp(args[0], args);
         perror("Execution failed");
         exit(1);
     } else {
-        // In the parent process, wait for the child to complete
         int status = 0;
         waitpid(pid, &status, 0);
 
         if (ctrlC_pressed) {
-            // If Ctrl+C was pressed, terminate the child process
             kill(pid, SIGTERM);
             return -1;
         } else {
@@ -209,7 +202,6 @@ void list_files_detailed(const char *path) {
 }
 
 int append_output_to_file(const char *command, const char *filename) {
-    // Open the file for appending (or create it if it doesn't exist)
     int fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
 
     if (fd == -1) {
@@ -217,7 +209,6 @@ int append_output_to_file(const char *command, const char *filename) {
         return 1; 
     }
 
-    // Duplicate the file descriptor for stdout (1)
     int stdout_copy = dup(STDOUT_FILENO);
 
     if (stdout_copy == -1) {
@@ -226,17 +217,14 @@ int append_output_to_file(const char *command, const char *filename) {
         return 1; // Error duplicating the file descriptor
     }
 
-    // Redirect stdout to the file descriptor of the opened file
     if (dup2(fd, STDOUT_FILENO) == -1) {
         perror("dup2");
         close(fd);
         return 1; // Error redirecting stdout
     }
 
-    // Close the file descriptor for the opened file (no longer needed)
     close(fd);
 
-    // Execute the command
     int status = system(command);
 
     if (status == -1) {
@@ -244,13 +232,11 @@ int append_output_to_file(const char *command, const char *filename) {
         return 1; // Error executing the command
     }
 
-    // Restore the original stdout
     if (dup2(stdout_copy, STDOUT_FILENO) == -1) {
         perror("dup2");
         return 1; // Error restoring stdout
     }
 
-    // Close the duplicated stdout file descriptor (no longer needed)
     close(stdout_copy);
 
     return 0; // Success
@@ -312,11 +298,9 @@ void execute_command(char* args[], int arg_count) {
         if (arg_count < 2) {
             printf("Usage: ping <hostname_or_ip>\n");
         } else {
-            // Build the ping command with the provided arguments
             char ping_command[MAX_INPUT_SIZE];
             snprintf(ping_command, sizeof(ping_command), "ping %s", args[1]);
 
-            // Execute the ping command
             int result = ping(ping_command);
 
             if (result == -1) {
@@ -390,12 +374,10 @@ void run_shell() {
         }
 
         if (pipe_position != -1) {
-            // If the pipe character is found, split the commands into two parts
-            args[pipe_position] = NULL; // Terminate the first command
-            execute_command(args, pipe_position); // Execute the first command
-            execute_command(args + pipe_position + 1, arg_count - pipe_position - 1); // Execute the second command
+            args[pipe_position] = NULL; 
+            execute_command(args, pipe_position); 
+            execute_command(args + pipe_position + 1, arg_count - pipe_position - 1); 
         } else {
-            // If no pipe character is found, execute the command as usual
             execute_command(args, arg_count);
         }
     }
